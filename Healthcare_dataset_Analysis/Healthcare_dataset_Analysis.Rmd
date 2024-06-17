@@ -3,23 +3,56 @@ title: "Health Care in United State(US)"
 output: html_notebook
 ---
 
-This is an analysed data of health care accessed in US in the past decade.\
-This analysis should not be used in decision making or any sort as the data used is not comprehensive to inform any decision.
+`This is an analysed data of health care accessed in US from 2019 till present. This analysis should not be used in decision making or any sort as the data used is not comprehensive to inform any decision.`
 
 #### Comprehensive data set.
 
 ```{r}
-Healthcare_dataset <- read.csv("healthcare_dataset.csv")
-Healthcare_dataset
+Healthcare_dataset_frame <- read.csv("healthcare_dataset.csv")
+Healthcare_dataset_frame
 ```
 
 ```{r}
 # Data summary
-summary(Healthcare_dataset)
+summary(Healthcare_dataset_frame)
 print(summary)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+#### Data wrangling.
+
+```{r}
+# Wrangling data for analysis
+Healthcare_dataset <- Healthcare_dataset_frame[1:55500, c("Age","Gender","Blood.Type","Medical.Condition","Date.of.Admission","Insurance.Provider","Billing.Amount","Admission.Type","Discharge.Date","Medication","Test.Results")]
+Healthcare_dataset
+```
+
+```{r}
+# Proper data type
+Preprocess_Healthcare_dataset <- function(Healthcare_dataset, src_Healthcare_dataset) {
+    
+    Healthcare_dataset$Age <- as.factor(Healthcare_dataset$Age)
+    Healthcare_dataset$Gender <- as.factor(Healthcare_dataset$Gender)
+    Healthcare_dataset$'Blood.Type' <- as.factor(Healthcare_dataset$'Blood.Type')
+    Healthcare_dataset$'Medical.Condition' <- as.factor(Healthcare_dataset$'Medical.Condition')
+    Healthcare_dataset$'Date.of.Admission' <- as.Date(Healthcare_dataset$'Date.of.Admission')
+    Healthcare_dataset$'Insurance.Provider' <- as.factor(Healthcare_dataset$'Insurance.Provider')
+    Healthcare_dataset$'Billing.Amount' <- as.numeric(gsub(",","",Healthcare_dataset$'Billing.Amount'))
+    Healthcare_dataset$'Admission.Type' <- as.factor(Healthcare_dataset$'Admission.Type')
+    Healthcare_dataset$'Discharge.Date' <- as.Date(Healthcare_dataset$'Discharge.Date')
+    Healthcare_dataset$'Test.Results' <- as.factor(Healthcare_dataset$'Test.Results')
+    return(Healthcare_dataset)
+}
+Preprocess_Healthcare_dataset(Healthcare_dataset)
+```
+
+```{r}
+# Data summary
+processed_healthcare_dataset <- Preprocess_Healthcare_dataset(Healthcare_dataset)
+summary(processed_healthcare_dataset)
+print(summary)
+```
+
+#### Analysis.
 
 When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file).
 
