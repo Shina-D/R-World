@@ -1,33 +1,39 @@
 ---
 title: "Health Care in United State(US)"
-output: html_notebook
+output: 
+  html_notebook: 
+    toc: true
+    fig_caption: true
 ---
 
-`This is an analysed data of health care accessed in US from 2019 till present. This analysis should not be used in decision making or any sort as the data used is not comprehensive to inform any decision.`
+This is an analysed data of health care accessed in the US from 2019 till present.
+
+Disclaimer: This analysis should not be used in decision making or any sort as the data used is not comprehensive to inform any decision.
 
 #### Comprehensive data set.
 
-```{r}
+```{r Comprehensive data set}
+
 Healthcare_dataset_frame <- read.csv("healthcare_dataset.csv")
 Healthcare_dataset_frame
 ```
 
-```{r}
-# Data summary
+```{r Data summary.1}
+
 summary(Healthcare_dataset_frame)
 print(summary)
 ```
 
 #### Data wrangling.
 
-```{r}
-# Wrangling data for analysis
+```{r Wrangling data for analysis}
+
 Healthcare_dataset <- Healthcare_dataset_frame[1:55500, c("Age","Gender","Blood.Type","Medical.Condition","Date.of.Admission","Insurance.Provider","Billing.Amount","Admission.Type","Discharge.Date","Medication","Test.Results")]
 Healthcare_dataset
 ```
 
-```{r}
-# Proper data type
+```{r Proper data type}
+
 Preprocess_Healthcare_dataset <- function(Healthcare_dataset, src_Healthcare_dataset) {
     
     Healthcare_dataset$Age <- as.factor(Healthcare_dataset$Age)
@@ -42,17 +48,105 @@ Preprocess_Healthcare_dataset <- function(Healthcare_dataset, src_Healthcare_dat
     Healthcare_dataset$'Test.Results' <- as.factor(Healthcare_dataset$'Test.Results')
     return(Healthcare_dataset)
 }
-Preprocess_Healthcare_dataset(Healthcare_dataset)
+Preprocess_Healthcare_dataset(Healthcare_dataset, src_Healthcare_dataset)
 ```
 
-```{r}
-# Data summary
-processed_healthcare_dataset <- Preprocess_Healthcare_dataset(Healthcare_dataset)
+```{r Data summary.2}
+
+processed_healthcare_dataset <- Preprocess_Healthcare_dataset(Healthcare_dataset, src_Healthcare_dataset)
 summary(processed_healthcare_dataset)
 print(summary)
 ```
 
-#### Analysis.
+#### Analysis 1 (Age Category against Gender).3.0.
+
+```{r Analysis of Age Category and Gender.1.0}
+
+# Data extraction, sorting & adding Age Category
+# The different age categories include:
+# Children = 0 - 14 years.
+# Youth = 15 - 24 years.
+# Adult = 25 - 64 years.
+# Seniors = 65 years and older.
+
+GenderandAge_dataset <- processed_healthcare_dataset[1:55500, c("Age","Gender")]
+Sorted_GenderandAge_dataset <- function(GenderandAge_dataset, src_GenderandAge_dataset) {
+  
+  GenderandAge_dataset$Age <- sort(GenderandAge_dataset$Age, decreasing = FALSE)
+  
+  GenderandAge_dataset$Age <- as.numeric(as.character(GenderandAge_dataset$Age))
+  
+  breaks <- c(-Inf, 14, 24, 64, Inf)
+  labels <- c("Children", "Youth", "Adults", "Seniors")
+  GenderandAge_dataset$'Age.Category' <- cut(GenderandAge_dataset$Age, breaks = breaks, labels = labels, right = TRUE)
+  
+  GenderandAge_dataset$Age <- as.factor(as.character(GenderandAge_dataset$Age))
+  
+  return(GenderandAge_dataset)
+  
+}
+
+Sorted_GenderandAge_dataset <- Sorted_GenderandAge_dataset(GenderandAge_dataset, src_GenderandAge_dataset)
+Sorted_GenderandAge_dataset
+```
+
+```{r Data summary.3}
+
+summary(Sorted_GenderandAge_dataset)
+print(summary)
+```
+
+```{r Subsetting the different age categories}
+# Extract rows where Age.Category is "Children" and Gender is either "Male" or "Female"
+children_gender_subset <- subset(Sorted_GenderandAge_dataset, Age.Category == "Children" & (Gender == "Male" | Gender == "Female"))
+print(children_gender_subset)
+
+# Extract rows where Age.Category is "Youth" and Gender is either "Male" or "Female"
+youth_gender_subset <- subset(Sorted_GenderandAge_dataset, Age.Category == "Youth" & (Gender == "Male" | Gender == "Female"))
+print(youth_gender_subset)
+
+# Extract rows where Age.Category is "Adults" and Gender is either "Male" or "Female"
+adults_gender_subset <- subset(Sorted_GenderandAge_dataset, Age.Category == "Adults" & (Gender == "Male" | Gender == "Female"))
+print(adults_gender_subset)
+
+# Extract rows where Age.Category is "Seniors" and Gender is either "Male" or "Female"
+seniors_gender_subset <- subset(Sorted_GenderandAge_dataset, Age.Category == "Seniors" & (Gender == "Male" | Gender == "Female"))
+print(seniors_gender_subset)
+
+```
+
+```{r Data summary.4}
+summary(children_gender_subset)
+print(summary)
+
+summary(youth_gender_subset)
+print(summary)
+
+summary(adults_gender_subset)
+print(summary)
+
+summary(seniors_gender_subset)
+print(summary)
+```
+
+| ***Age.Category***   | ***Female*** | ***Male*** |
+|----------------------|--------------|------------|
+| Children (\<=14 yrs) | 21           | 11         |
+| Youth (15 - 24 yrs)  | 2828         | 2849       |
+| Adults (25 - 64 yrs) | 16457        | 16247      |
+| Seniors ( \>=65 yrs) | 8420         | 8667       |
+
+: [***Healthcare Access Between Both Genders Across the Different Age Categories***]{.underline}
+
+```{r Table, Healthcare Access Among Both Genders and Age Group.}
+
+AgeCategory_Gender_Analysis_dataframe <- data.frame(
+  Age.Category = c('Children (<=14 yrs)', 'Youth (15 - 24 yrs)', 'Adults (25 - 64 yrs)', 'Seniors ( >=65 yrs)'),
+  Female = c(21, 2828, 16457, 8420),
+  Male = c(11, 2849, 16247, 8667)
+)
+AgeCategory_Gender_Analysis_dataframe
+```
 
 When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file).
 
